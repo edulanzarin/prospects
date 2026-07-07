@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-inter), system-ui, sans-serif;
+
+  --color-navy: #041e41;
+  --color-navy-hover: #0a2b57;
+  --color-gold: #c9a13b;
+  --color-gold-hover: #d9b34e;
+  --color-link: #8a6d1e;
+
+  --color-page: #f3f4f6;
+  --color-card-border: #e4e7eb;
+  --color-divider: #eef0f3;
+
+  --color-text: #1a2433;
+  --color-text-secondary: #344054;
+  --color-text-muted: #667085;
+  --color-text-faint: #98a2b3;
+
+  --color-input-border: #d5dae1;
+
+  --color-alerta-bg: #fdecea;
+  --color-alerta-fg: #c0392b;
+  --color-alerta-border: #f0c4be;
+
+  --color-cliente-bg: #e6f4ec;
+  --color-cliente-fg: #1e7e4c;
+  --color-cliente-border: #bbdecb;
+
+  --color-prospeccao-bg: #eaf1fa;
+  --color-prospeccao-fg: #2c5da8;
+
+  --color-perdido-bg: #edeff3;
+  --color-perdido-fg: #667085;
+
+  --color-callout-bg: #fdf3df;
+  --color-callout-border: #ead9a8;
+  --color-callout-fg: #8a6d1e;
+
+  --color-dropzone-border: #c8cfd9;
+  --color-dropzone-bg-hover: #fdfbf4;
+}
+
+body {
+  background-color: var(--color-page);
+  background-image: radial-gradient(circle, rgba(4, 30, 65, 0.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+  color: var(--color-text);
+}
+
+@layer components {
+  /* Superfície padrão: sombra suave + borda quase invisível, no lugar de
+     bordas pesadas — visual mais leve e moderno, mesmo com telas densas. */
+  .card {
+    @apply rounded-[20px] border border-black/[0.06] bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)];
+  }
+
+  .campo-input {
+    @apply w-full rounded-xl border border-input-border bg-white px-3.5 py-2.5 text-[13.5px] text-text outline-none transition-shadow placeholder:text-text-faint;
+  }
+  .campo-input:focus {
+    @apply border-gold ring-[3px] ring-gold/15;
+  }
+
+  /* Textura sutil para telas de fundo sólido escuro (ex: login) — profundidade sem poluir. */
+  .bg-texture-navy {
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+}

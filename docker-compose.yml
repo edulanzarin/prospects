@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-navecon}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-navecon}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-navecon} -d ${POSTGRES_DB:-navecon}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "4013:3000"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-navecon}:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-navecon}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@navecon.com.br}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-changeme}
+      ADMIN_NOME: ${ADMIN_NOME:-Administrador}
+      UPLOADS_DIR: /app/uploads
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-Navecon Prospecção <no-reply@navecon.com.br>}
+    volumes:
+      - uploads_data:/app/uploads
+
+volumes:
+  pgdata:
+  uploads_data:

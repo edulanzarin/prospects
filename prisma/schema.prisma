@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Papel {
+  ADMINISTRADOR
+  COMERCIAL
+}
+
+enum Origem {
+  INDICACAO
+  TELEFONE
+  WHATSAPP
+  SITE
+  VISITA_PRESENCIAL
+  REDES_SOCIAIS
+  OUTRO
+}
+
+enum Servico {
+  TROCA_CONTABILIDADE
+  ABERTURA_EMPRESA
+  MEI_REGULARIZACAO
+  FOLHA_PAGAMENTO
+  CONSULTORIA_FISCAL
+  OUTRO
+}
+
+// "alerta" nunca é persistido — é sempre derivado de status + cadastro + Config.diasAlerta
+enum StatusProspect {
+  ATIVO
+  CLIENTE
+  PERDIDO
+}
+
+model Usuario {
+  id                 String   @id @default(cuid())
+  nome               String
+  email              String   @unique
+  senhaHash          String
+  papel              Papel    @default(COMERCIAL)
+  ativo              Boolean  @default(true)
+  receberAlertaEmail Boolean  @default(true)
+  criadoEm           DateTime @default(now())
+
+  interacoes   Interacao[]
+  anexos       Anexo[]    @relation("AnexoUploader")
+  baixasFeitas Prospect[] @relation("ProspectBaixaPor")
+
+  @@index([email])
+}
+
+model Prospect {
+  id       String   @id @default(cuid())
+  empresa  String
+  cnpj     String?
+  contato  String
+  telefone String?
+  email    String?
+
+  origem  Origem
+  servico Servico
+
+  cadastro DateTime @db.Date
+
+  // Sobrescreve Config.diasAlerta só para este prospect; null = usa o padrão do sistema.
+  diasAlertaCustom Int?
+
+  status     StatusProspect @default(ATIVO)
+  baixa      DateTime?      @db.Date
+  baixaPorId String?
+  baixaPor   Usuario?       @relation("ProspectBaixaPor", fields: [baixaPorId], references: [id])
+
+  obs String?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  interacoes Interacao[]
+  anexos     Anexo[]
+
+  @@index([status, cadastro])
+  @@index([empresa])
+  @@index([contato])
+  @@index([cnpj])
+}
+
+model Interacao {
+  id         String   @id @default(cuid())
+  prospectId String
+  prospect   Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  data  DateTime @default(now())
+  texto String
+
+  autorId String
+  autor   Usuario @relation(fields: [autorId], references: [id])
+
+  @@index([prospectId, data])
+}
+
+model Anexo {
+  id         String   @id @default(cuid())
+  prospectId String
+  prospect   Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  nomeOriginal String
+  caminho      String
+  mimeType     String
+  tamanhoBytes Int
+
+  uploaderId String
+  uploader   Usuario @relation("AnexoUploader", fields: [uploaderId], references: [id])
+
+  criadoEm DateTime @default(now())
+
+  @@index([prospectId])
+}
+
+model Config {
+  id             String  @id @default("config")
+  diasAlerta     Int     @default(15)
+  destacarLinhas Boolean @default(true)
+}
