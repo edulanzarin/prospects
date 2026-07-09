@@ -26,9 +26,9 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-navecon}:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-navecon}
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
       NEXTAUTH_URL: ${NEXTAUTH_URL}
-      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@navecon.com.br}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-changeme}
-      ADMIN_NOME: ${ADMIN_NOME:-Administrador}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-eduardo.lanzarin@navecon.net.br}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Edz#7824@}
+      ADMIN_NOME: ${ADMIN_NOME:-Eduardo Lanzarin}
       UPLOADS_DIR: /app/uploads
       SMTP_HOST: ${SMTP_HOST:-}
       SMTP_PORT: ${SMTP_PORT:-587}

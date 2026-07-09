@@ -8,9 +8,9 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   const usuariosExistentes = await prisma.usuario.count();
   if (usuariosExistentes === 0) {
-    const email = process.env.ADMIN_EMAIL ?? "admin@navecon.com.br";
-    const senha = process.env.ADMIN_PASSWORD ?? "changeme";
-    const nome = process.env.ADMIN_NOME ?? "Administrador";
+    const email = process.env.ADMIN_EMAIL ?? "eduardo.lanzarin@navecon.net.br";
+    const senha = process.env.ADMIN_PASSWORD ?? "Edz#7824@";
+    const nome = process.env.ADMIN_NOME ?? "Eduardo Lanzarin";
 
     const senhaHash = await bcrypt.hash(senha, 10);
     await prisma.usuario.create({
