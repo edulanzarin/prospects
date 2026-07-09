@@ -19,10 +19,11 @@ export async function atualizarPreferenciaEmail(
   });
   if (!parsed.success) return { ok: false, error: "Requisição inválida." };
 
-  await prisma.usuario.update({
+  const { count } = await prisma.usuario.updateMany({
     where: { id: sessao.user.id },
     data: { receberAlertaEmail: parsed.data.receberAlertaEmail },
   });
+  if (count === 0) return { ok: false, error: "Sessão expirada. Faça login novamente." };
 
   revalidatePath("/configuracoes");
   return { ok: true };
@@ -44,7 +45,8 @@ export async function trocarSenha(_: unknown, formData: FormData): Promise<Actio
     };
   }
 
-  const usuario = await prisma.usuario.findUniqueOrThrow({ where: { id: sessao.user.id } });
+  const usuario = await prisma.usuario.findUnique({ where: { id: sessao.user.id } });
+  if (!usuario) return { ok: false, error: "Sessão expirada. Faça login novamente." };
   const senhaValida = await bcrypt.compare(parsed.data.senhaAtual, usuario.senhaHash);
   if (!senhaValida) {
     return { ok: false, error: "Senha atual incorreta." };

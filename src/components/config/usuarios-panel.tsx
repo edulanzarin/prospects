@@ -40,10 +40,10 @@ export function UsuariosPanel({ usuarios }: { usuarios: UsuarioLinha[] }) {
   return (
     <div className="card overflow-hidden">
       <div className="flex items-center gap-2.5 px-6 py-4">
-        <span className="flex h-8 w-8 flex-none items-center justify-center rounded-xl bg-navy/[0.08] text-navy">
+        <span className="flex h-8 w-8 flex-none items-center justify-center rounded-xl bg-primary-soft text-primary">
           <Users size={15} strokeWidth={1.9} />
         </span>
-        <h3 className="font-display text-[16px] font-bold tracking-wide text-navy">
+        <h3 className="text-[15px] font-semibold tracking-tight text-ink">
           Usuários da equipe
         </h3>
         <button
@@ -73,13 +73,11 @@ export function UsuariosPanel({ usuarios }: { usuarios: UsuarioLinha[] }) {
         >
           <Input name="nome" required placeholder="Nome completo" />
           <Input name="email" type="email" required placeholder="email@navecon.com.br" />
-          <Select name="papel" defaultValue="COMERCIAL">
-            {PAPEL_OPTIONS.map(([valor, label]) => (
-              <option key={valor} value={valor}>
-                {label}
-              </option>
-            ))}
-          </Select>
+          <Select
+            name="papel"
+            defaultValue="COMERCIAL"
+            options={PAPEL_OPTIONS.map(([valor, label]) => ({ value: valor, label }))}
+          />
           <Input
             name="senha"
             type="password"
@@ -106,7 +104,7 @@ export function UsuariosPanel({ usuarios }: { usuarios: UsuarioLinha[] }) {
           key={usuario.id}
           className="flex items-center gap-3 border-t border-divider px-6 py-3.5"
         >
-          <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-[#EDEFF3] text-xs font-bold text-navy">
+          <div className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-primary-soft text-xs font-semibold text-primary">
             {iniciaisDe(usuario.nome)}
           </div>
           <div className="min-w-0 flex-1">

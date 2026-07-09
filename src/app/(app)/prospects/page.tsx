@@ -1,11 +1,25 @@
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Users, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { getConfig, getProspectsFiltrados } from "@/lib/queries";
+import type { StatusVisualKey } from "@/lib/prospect-status";
+import { buttonClasses } from "@/components/ui/button";
 import { ProspectFilters } from "@/components/prospects/prospect-filters";
 import { ProspectTable } from "@/components/prospects/prospect-table";
 import { FadeIn } from "@/components/ui/fade-in";
 
+export const metadata = { title: "Prospects" };
+
 const POR_PAGINA = 20;
+
+type StatusFiltro = "TODOS" | "ATIVO" | "ALERTA" | "CLIENTE" | "PERDIDO";
+
+const ABAS: { status: StatusFiltro; label: string; key: StatusVisualKey | null }[] = [
+  { status: "TODOS", label: "Todos", key: null },
+  { status: "ALERTA", label: "Em alerta", key: "alerta" },
+  { status: "ATIVO", label: "Em prospecção", key: "prospeccao" },
+  { status: "CLIENTE", label: "Clientes", key: "cliente" },
+  { status: "PERDIDO", label: "Não fecharam", key: "perdido" },
+];
 
 export default async function ProspectsPage({
   searchParams,
@@ -24,12 +38,13 @@ export default async function ProspectsPage({
 
   const status = (["TODOS", "ATIVO", "ALERTA", "CLIENTE", "PERDIDO"].includes(params.status ?? "")
     ? params.status
-    : "TODOS") as "TODOS" | "ATIVO" | "ALERTA" | "CLIENTE" | "PERDIDO";
+    : "TODOS") as StatusFiltro;
 
-  const todosFiltrados = await getProspectsFiltrados(
+  // Busca sem o filtro de status para as abas mostrarem a contagem de todos os grupos.
+  const todosSemStatus = await getProspectsFiltrados(
     {
       busca: params.busca,
-      status,
+      status: "TODOS",
       origem: (params.origem as never) ?? "TODAS",
       cadastroDe: params.cadastroDe,
       cadastroAte: params.cadastroAte,
@@ -37,9 +52,22 @@ export default async function ProspectsPage({
     config.diasAlerta
   );
 
+  const contagem: Record<StatusVisualKey, number> = {
+    alerta: 0,
+    prospeccao: 0,
+    cliente: 0,
+    perdido: 0,
+  };
+  for (const p of todosSemStatus) contagem[p.visual.key]++;
+
+  const abaAtual = ABAS.find((t) => t.status === status) ?? ABAS[0];
+  const filtrados = abaAtual.key
+    ? todosSemStatus.filter((p) => p.visual.key === abaAtual.key)
+    : todosSemStatus;
+
   const paginaAtual = Math.max(1, Number(params.pagina ?? 1) || 1);
-  const totalPaginas = Math.max(1, Math.ceil(todosFiltrados.length / POR_PAGINA));
-  const pagina = todosFiltrados.slice((paginaAtual - 1) * POR_PAGINA, paginaAtual * POR_PAGINA);
+  const totalPaginas = Math.max(1, Math.ceil(filtrados.length / POR_PAGINA));
+  const pagina = filtrados.slice((paginaAtual - 1) * POR_PAGINA, paginaAtual * POR_PAGINA);
 
   const queryBase = new URLSearchParams();
   if (params.busca) queryBase.set("busca", params.busca);
@@ -48,18 +76,56 @@ export default async function ProspectsPage({
   if (params.cadastroDe) queryBase.set("cadastroDe", params.cadastroDe);
   if (params.cadastroAte) queryBase.set("cadastroAte", params.cadastroAte);
 
-  const contagem = { alerta: 0, prospeccao: 0, cliente: 0, perdido: 0 };
-  for (const p of todosFiltrados) contagem[p.visual.key]++;
-
   return (
     <div className="flex w-full max-w-[1680px] flex-col gap-4">
       <FadeIn>
-        <StatsStrip total={todosFiltrados.length} contagem={contagem} />
-      </FadeIn>
-      <FadeIn delay={0.05}>
         <ProspectFilters />
       </FadeIn>
-      <ProspectTable prospects={pagina} />
+
+      <FadeIn delay={0.05} className="card overflow-hidden">
+        <div className="flex flex-wrap items-center gap-2 border-b border-divider px-5 pt-1.5">
+          <nav className="flex flex-1 items-center gap-1 overflow-x-auto">
+            {ABAS.map((aba) => {
+              const total = aba.key ? contagem[aba.key] : todosSemStatus.length;
+              const ativa = aba.status === status;
+              const query = new URLSearchParams(queryBase);
+              query.delete("pagina");
+              if (aba.status === "TODOS") query.delete("status");
+              else query.set("status", aba.status);
+              return (
+                <Link
+                  key={aba.status}
+                  href={`/prospects?${query.toString()}`}
+                  className={`relative flex flex-none items-center gap-1.5 px-3 py-3 text-[13px] font-semibold transition-colors ${
+                    ativa ? "text-primary" : "text-text-muted hover:text-text"
+                  }`}
+                >
+                  {aba.label}
+                  <span
+                    className={`rounded-full px-1.5 py-0.5 text-[10.5px] font-semibold ${
+                      ativa ? "bg-primary-soft text-primary" : "bg-page text-text-muted"
+                    }`}
+                  >
+                    {total}
+                  </span>
+                  {ativa && (
+                    <span className="absolute inset-x-3 bottom-0 h-[2px] rounded-full bg-primary" />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+          <a
+            href={`/api/prospects/export?${queryBase.toString()}`}
+            download
+            className={buttonClasses("outline", "sm", "my-1.5 flex-none")}
+          >
+            <Download size={13} strokeWidth={2} />
+            Exportar CSV
+          </a>
+        </div>
+        <ProspectTable prospects={pagina} embutida />
+      </FadeIn>
 
       {totalPaginas > 1 && (
         <div className="flex items-center justify-center gap-4 px-1 text-[12.5px] text-text-muted">
@@ -85,44 +151,6 @@ export default async function ProspectsPage({
   );
 }
 
-function StatsStrip({
-  total,
-  contagem,
-}: {
-  total: number;
-  contagem: { alerta: number; prospeccao: number; cliente: number; perdido: number };
-}) {
-  const itens = [
-    { label: "Resultados", valor: total, icon: Users, cor: "#041E41" },
-    { label: "Em alerta", valor: contagem.alerta, icon: AlertTriangle, cor: "#C0392B" },
-    { label: "Clientes", valor: contagem.cliente, icon: CheckCircle2, cor: "#1E7E4C" },
-    { label: "Não fecharam", valor: contagem.perdido, icon: XCircle, cor: "#667085" },
-  ];
-
-  return (
-    <div className="card grid grid-cols-2 divide-x divide-divider overflow-hidden sm:grid-cols-4">
-      {itens.map((item) => (
-        <div key={item.label} className="flex items-center gap-3 px-5 py-4">
-          <span
-            className="flex h-9 w-9 flex-none items-center justify-center rounded-xl text-white"
-            style={{ backgroundColor: item.cor }}
-          >
-            <item.icon size={17} strokeWidth={1.9} />
-          </span>
-          <div className="min-w-0">
-            <div className="font-display text-[22px] leading-none font-extrabold tracking-tight text-text">
-              {item.valor}
-            </div>
-            <div className="mt-1 truncate text-[11px] font-semibold tracking-wide text-text-muted uppercase">
-              {item.label}
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function PaginaLink({
   queryBase,
   pagina,
@@ -137,7 +165,7 @@ function PaginaLink({
   children: React.ReactNode;
 }) {
   const classe = `flex items-center gap-1 font-semibold ${
-    disabled ? "cursor-not-allowed text-text-faint" : "text-link hover:text-gold"
+    disabled ? "cursor-not-allowed text-text-faint" : "text-primary hover:text-primary-hover"
   } ${fim ? "flex-row-reverse" : ""}`;
 
   if (disabled) {

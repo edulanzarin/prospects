@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
+import { SearchX, Plus, X } from "lucide-react";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { buttonClasses } from "@/components/ui/button";
 import { diasTexto, type StatusVisual } from "@/lib/prospect-status";
@@ -24,22 +25,56 @@ interface ProspectLinha {
   visual: StatusVisual;
 }
 
-export function ProspectTable({ prospects }: { prospects: ProspectLinha[] }) {
+export function ProspectTable({
+  prospects,
+  embutida,
+}: {
+  prospects: ProspectLinha[];
+  embutida?: boolean;
+}) {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   if (prospects.length === 0) {
+    const temFiltro = searchParams.toString().length > 0;
     return (
-      <div className="card px-7 py-10 text-center text-[13px] text-text-faint">
-        Nenhum prospect encontrado com esses filtros.
+      <div
+        className={`flex flex-col items-center gap-4 px-7 py-12 text-center ${embutida ? "" : "card"}`}
+      >
+        <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-page text-text-faint">
+          <SearchX size={24} strokeWidth={1.6} />
+        </span>
+        <div>
+          <div className="text-[14.5px] font-semibold text-text">
+            {temFiltro ? "Nenhum prospect encontrado" : "Nenhum prospect cadastrado ainda"}
+          </div>
+          <div className="mt-1 text-[12.5px] text-text-muted">
+            {temFiltro
+              ? "Ajuste ou limpe os filtros para ver outros resultados."
+              : "Cadastre o primeiro prospect para começar o acompanhamento."}
+          </div>
+        </div>
+        {temFiltro ? (
+          <Link href="/prospects" className={buttonClasses("outline", "sm")}>
+            <X size={13} strokeWidth={2.2} />
+            Limpar filtros
+          </Link>
+        ) : (
+          <Link href="/prospects/novo" className={buttonClasses("primary", "sm")}>
+            <Plus size={13} strokeWidth={2.4} />
+            Cadastrar prospect
+          </Link>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="card overflow-hidden">
-      <table className="w-full border-collapse text-[13px]">
+    <div className={embutida ? "" : "card overflow-hidden"}>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[880px] border-collapse text-[13px]">
         <thead>
-          <tr className="bg-[#FAFBFC]">
+          <tr className="bg-hover-row">
             <Th>Empresa</Th>
             <Th>Contato</Th>
             <Th>Serviço de interesse</Th>
@@ -58,12 +93,12 @@ export function ProspectTable({ prospects }: { prospects: ProspectLinha[] }) {
               whileTap={{ scale: 0.995 }}
               transition={{ duration: 0.25, delay: Math.min(index * 0.03, 0.4) }}
               onClick={() => router.push(`/prospects/${p.id}`)}
-              className="cursor-pointer border-b border-divider transition-colors last:border-b-0 hover:bg-[#FAFBFC]"
-              style={{ background: p.visual.key === "alerta" ? "#FEF5F4" : undefined }}
+              className="cursor-pointer border-b border-divider transition-colors last:border-b-0 hover:bg-hover-row"
+              style={{ background: p.visual.key === "alerta" ? "var(--color-alerta-bg)" : undefined }}
             >
               <td className="py-4 pr-6 pl-5" style={{ boxShadow: `inset 3px 0 0 ${p.visual.fg}` }}>
                 <div className="pl-2">
-                  <div className="text-[14px] font-bold text-text">{p.empresa}</div>
+                  <div className="text-[14px] font-semibold text-text">{p.empresa}</div>
                   <div className="text-[11.5px] text-text-faint">{p.cnpj ?? "—"}</div>
                 </div>
               </td>
@@ -74,7 +109,7 @@ export function ProspectTable({ prospects }: { prospects: ProspectLinha[] }) {
               <td className="px-3 py-4 text-text-secondary">{SERVICO_LABELS[p.servico]}</td>
               <td className="px-3 py-4 text-text-muted">{ORIGEM_LABELS[p.origem]}</td>
               <td className="px-3 py-4">
-                <div className="font-bold tabular-nums text-text">{formatarData(p.cadastro)}</div>
+                <div className="font-semibold tabular-nums text-text">{formatarData(p.cadastro)}</div>
                 <div className="text-[11px] font-semibold" style={{ color: p.visual.fg }}>
                   {diasTexto(p)}
                 </div>
@@ -94,14 +129,15 @@ export function ProspectTable({ prospects }: { prospects: ProspectLinha[] }) {
             </motion.tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
     </div>
   );
 }
 
 function Th({ children }: { children: React.ReactNode }) {
   return (
-    <th className="border-b border-divider px-3 py-3.5 text-left text-[11px] font-bold uppercase tracking-wide text-text-muted first:pl-7 last:px-6">
+    <th className="border-b border-divider px-3 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wide text-text-muted first:pl-7 last:px-6">
       {children}
     </th>
   );

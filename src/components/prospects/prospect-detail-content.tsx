@@ -20,7 +20,9 @@ import { diasDesde, diasTexto, limiteAlerta, statusVisual } from "@/lib/prospect
 import { formatarData } from "@/lib/format";
 import { ORIGEM_LABELS, SERVICO_LABELS } from "@/lib/labels";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { buttonClasses } from "@/components/ui/button";
 import { StatusActions } from "@/components/prospects/status-actions";
+import { FlowStepper } from "@/components/prospects/flow-stepper";
 import { Timeline } from "@/components/prospects/timeline";
 import { AttachmentsList } from "@/components/prospects/attachments-list";
 import { EditProspectModal } from "@/components/prospects/edit-prospect-modal";
@@ -42,15 +44,13 @@ export async function ProspectDetailContent({ id, emDrawer }: { id: string; emDr
   const visual = statusVisual(prospect, config.diasAlerta);
   const ativo = prospect.status === "ATIVO";
   const baixado = !ativo;
+  const emAlerta = visual.key === "alerta";
 
   return (
     <div className={emDrawer ? "flex flex-col gap-5" : "flex w-full max-w-[1560px] flex-col gap-5"}>
       <div className="flex flex-col gap-3">
         {!emDrawer && (
-          <Link
-            href="/prospects"
-            className="flex w-fit flex-none items-center gap-1.5 rounded-xl border border-input-border bg-white px-3 py-1.5 text-[12.5px] font-semibold text-text-secondary transition-colors hover:border-gold"
-          >
+          <Link href="/prospects" className={buttonClasses("outline", "sm", "w-fit flex-none")}>
             <ArrowLeft size={14} strokeWidth={2} />
             Voltar
           </Link>
@@ -58,7 +58,7 @@ export async function ProspectDetailContent({ id, emDrawer }: { id: string; emDr
         <div className="flex min-w-0 items-center gap-2.5">
           <h1
             title={prospect.empresa}
-            className="min-w-0 truncate font-display text-[24px] font-extrabold tracking-tight text-navy"
+            className="min-w-0 truncate text-2xl font-semibold tracking-tight text-ink"
           >
             {prospect.empresa}
           </h1>
@@ -86,7 +86,12 @@ export async function ProspectDetailContent({ id, emDrawer }: { id: string; emDr
         </div>
       </div>
 
-      {visual.key === "alerta" && (
+      <FlowStepper
+        prospect={{ status: prospect.status, cadastro: prospect.cadastro, baixa: prospect.baixa }}
+        emAlerta={emAlerta}
+      />
+
+      {emAlerta && (
         <div className="flex items-center gap-2.5 rounded-xl border border-alerta-border bg-alerta-bg px-4 py-3 text-[13px] text-alerta-fg">
           <AlertTriangle size={16} strokeWidth={1.8} className="flex-none" />
           <span>
@@ -100,8 +105,8 @@ export async function ProspectDetailContent({ id, emDrawer }: { id: string; emDr
         <div
           className="rounded-xl border px-4 py-3 text-[13px]"
           style={{
-            background: prospect.status === "CLIENTE" ? "#E6F4EC" : "#EDEFF3",
-            borderColor: prospect.status === "CLIENTE" ? "#BBDECB" : "#D5DAE1",
+            background: prospect.status === "CLIENTE" ? "var(--color-cliente-bg)" : "var(--color-perdido-bg)",
+            borderColor: prospect.status === "CLIENTE" ? "var(--color-cliente-border)" : "var(--color-input-border)",
             color: visual.fg,
           }}
         >
@@ -121,7 +126,7 @@ export async function ProspectDetailContent({ id, emDrawer }: { id: string; emDr
           <div className="card p-6">
             <div className="mb-4 flex items-center gap-2">
               <Building2 size={16} strokeWidth={1.8} className="text-text-faint" />
-              <h3 className="font-display text-[16px] font-bold tracking-wide text-navy">
+              <h3 className="text-[15px] font-semibold tracking-tight text-ink">
                 Dados do prospect
               </h3>
             </div>
@@ -158,7 +163,7 @@ export async function ProspectDetailContent({ id, emDrawer }: { id: string; emDr
             </div>
             {prospect.obs && (
               <div className="mt-5 border-t border-divider pt-4">
-                <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-text-faint">
+                <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-text-faint">
                   <MessageSquare size={12} strokeWidth={2} />
                   Observações
                 </div>
@@ -201,14 +206,14 @@ function Campo({
 }) {
   return (
     <div className="min-w-0">
-      <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-text-faint">
+      <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-text-faint">
         <Icon size={12} strokeWidth={2} />
         {label}
       </div>
       <div
-        className={`mt-1 truncate ${destaque ? "font-bold" : ""}`}
+        className={`mt-1 truncate ${destaque ? "font-semibold" : ""}`}
         title={valor}
-        style={{ color: cor ?? "#1A2433" }}
+        style={{ color: cor ?? "var(--color-text)" }}
       >
         {valor}
       </div>

@@ -4,12 +4,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Building2,
-  FileText,
   User,
-  Phone,
-  Mail,
-  Calendar,
-  Tag,
   Briefcase,
   MessageSquare,
   CheckCircle2,
@@ -24,11 +19,13 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { FadeIn } from "@/components/ui/fade-in";
+import { useToast } from "@/components/ui/toast";
 
 const hoje = () => new Date().toISOString().slice(0, 10);
 
 export function ProspectForm() {
   const router = useRouter();
+  const toast = useToast();
   const [state, formAction, pending] = useActionState(criarProspect, undefined);
   const [arquivos, setArquivos] = useState<File[]>([]);
   const [cnpj, setCnpj] = useState("");
@@ -36,18 +33,21 @@ export function ProspectForm() {
   const inputArquivosRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (state?.ok) router.push("/prospects");
+    if (state?.ok) {
+      toast("Prospect cadastrado com sucesso.");
+      router.push("/prospects");
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   return (
-    <form action={formAction} className="card flex flex-col gap-7 p-8">
+    <form action={formAction} className="card flex flex-col gap-6 p-6 sm:p-8">
       <div className="flex items-center gap-3.5 border-b border-divider pb-6">
-        <span className="flex h-12 w-12 flex-none items-center justify-center rounded-2xl bg-gold text-navy">
+        <span className="flex h-12 w-12 flex-none items-center justify-center rounded-2xl bg-primary-soft text-primary">
           <UserPlus2 size={22} strokeWidth={2} />
         </span>
         <div>
-          <h2 className="font-display text-[22px] font-extrabold tracking-tight text-navy">
+          <h2 className="text-[21px] font-semibold tracking-tight text-ink">
             Novo prospect
           </h2>
           <p className="mt-0.5 text-[12.5px] text-text-muted">
@@ -58,10 +58,10 @@ export function ProspectForm() {
 
       <FadeIn delay={0.05}>
         <Secao titulo="Dados da empresa" icon={<Building2 size={13} strokeWidth={2} />}>
-          <Field label="Empresa *" icon={<Building2 size={14} strokeWidth={1.8} />}>
+          <Field label="Empresa *" className="lg:col-span-2">
             <Input name="empresa" required placeholder="Razão social ou nome fantasia" />
           </Field>
-          <Field label="CNPJ" icon={<FileText size={14} strokeWidth={1.8} />}>
+          <Field label="CNPJ">
             <Input
               name="cnpj"
               value={cnpj}
@@ -75,10 +75,10 @@ export function ProspectForm() {
 
       <FadeIn delay={0.1}>
         <Secao titulo="Contato" icon={<User size={13} strokeWidth={2} />}>
-          <Field label="Nome do contato *" icon={<User size={14} strokeWidth={1.8} />}>
+          <Field label="Nome do contato *">
             <Input name="contato" required placeholder="Com quem o comercial falou" />
           </Field>
-          <Field label="Telefone / WhatsApp" icon={<Phone size={14} strokeWidth={1.8} />}>
+          <Field label="Telefone / WhatsApp">
             <Input
               name="telefone"
               value={telefone}
@@ -87,7 +87,7 @@ export function ProspectForm() {
               inputMode="numeric"
             />
           </Field>
-          <Field label="E-mail" icon={<Mail size={14} strokeWidth={1.8} />}>
+          <Field label="E-mail">
             <Input name="email" type="email" placeholder="contato@empresa.com.br" />
           </Field>
         </Secao>
@@ -95,26 +95,22 @@ export function ProspectForm() {
 
       <FadeIn delay={0.15}>
         <Secao titulo="Detalhes comerciais" icon={<Briefcase size={13} strokeWidth={2} />}>
-          <Field label="Data do primeiro contato" icon={<Calendar size={14} strokeWidth={1.8} />}>
+          <Field label="Data do primeiro contato">
             <Input name="cadastro" type="date" required defaultValue={hoje()} />
           </Field>
-          <Field label="Origem do contato" icon={<Tag size={14} strokeWidth={1.8} />}>
-            <Select name="origem" defaultValue="INDICACAO">
-              {ORIGEM_OPTIONS.map(([valor, label]) => (
-                <option key={valor} value={valor}>
-                  {label}
-                </option>
-              ))}
-            </Select>
+          <Field label="Origem do contato">
+            <Select
+              name="origem"
+              defaultValue="INDICACAO"
+              options={ORIGEM_OPTIONS.map(([valor, label]) => ({ value: valor, label }))}
+            />
           </Field>
-          <Field label="Serviço de interesse" icon={<Briefcase size={14} strokeWidth={1.8} />}>
-            <Select name="servico" defaultValue="TROCA_CONTABILIDADE">
-              {SERVICO_OPTIONS.map(([valor, label]) => (
-                <option key={valor} value={valor}>
-                  {label}
-                </option>
-              ))}
-            </Select>
+          <Field label="Serviço de interesse">
+            <Select
+              name="servico"
+              defaultValue="TROCA_CONTABILIDADE"
+              options={SERVICO_OPTIONS.map(([valor, label]) => ({ value: valor, label }))}
+            />
           </Field>
         </Secao>
       </FadeIn>
@@ -130,7 +126,7 @@ export function ProspectForm() {
         </Secao>
       </FadeIn>
 
-      <label className="block cursor-pointer rounded-2xl border-2 border-dashed border-dropzone-border bg-[#FAFBFC] p-7 text-center transition-colors hover:border-gold hover:bg-dropzone-bg-hover">
+      <label className="flex cursor-pointer items-center justify-center gap-3 rounded-xl border border-dashed border-dropzone-border px-5 py-4 transition-colors hover:border-primary hover:bg-dropzone-bg-hover">
         <input
           ref={inputArquivosRef}
           type="file"
@@ -142,19 +138,25 @@ export function ProspectForm() {
         />
         {arquivos.length === 0 ? (
           <>
-            <UploadCloud size={24} strokeWidth={1.6} className="mx-auto mb-2 text-text-faint" />
-            <div className="text-sm font-bold text-text-secondary">Anexar documentos do prospect</div>
-            <div className="mt-1 text-xs text-text-faint">
-              Cartão CNPJ, contrato social, propostas… · PDF, JPG, PNG
+            <UploadCloud size={22} strokeWidth={1.6} className="flex-none text-text-faint" />
+            <div className="text-left">
+              <div className="text-[13px] font-medium text-text-secondary">
+                Anexar documentos do prospect
+              </div>
+              <div className="text-xs text-text-faint">
+                Cartão CNPJ, contrato social, propostas… · PDF, JPG, PNG
+              </div>
             </div>
           </>
         ) : (
           <>
-            <div className="flex items-center justify-center gap-1.5 text-[13.5px] font-bold text-cliente-fg">
-              <CheckCircle2 size={16} strokeWidth={1.8} />
-              {arquivos.length} arquivo(s) selecionado(s)
+            <CheckCircle2 size={18} strokeWidth={1.8} className="flex-none text-cliente-fg" />
+            <div className="text-left">
+              <div className="text-[13px] font-semibold text-cliente-fg">
+                {arquivos.length} arquivo(s) selecionado(s)
+              </div>
+              <div className="text-xs text-text-faint">clique para adicionar mais arquivos</div>
             </div>
-            <div className="mt-1 text-xs text-text-faint">clique para adicionar mais arquivos</div>
           </>
         )}
       </label>
@@ -190,7 +192,7 @@ function Secao({
     <div>
       <div className="mb-3.5 flex items-center gap-2">
         <span className="text-text-faint">{icon}</span>
-        <h3 className="text-[11.5px] font-bold tracking-wider text-text-muted uppercase">{titulo}</h3>
+        <h3 className="text-[11px] font-semibold tracking-wider text-text-muted uppercase">{titulo}</h3>
         <div className="h-px flex-1 bg-divider" />
       </div>
       <div className="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">{children}</div>

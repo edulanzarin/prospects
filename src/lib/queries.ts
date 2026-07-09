@@ -67,6 +67,17 @@ export async function getProspectsFiltrados(filtro: ProspectsFiltro, diasAlerta:
   return enriquecidos;
 }
 
+/** Contagem de prospects por origem, para o painel analítico do dashboard. */
+export async function getContagemPorOrigem() {
+  const grupos = await prisma.prospect.groupBy({
+    by: ["origem"],
+    _count: { _all: true },
+  });
+  return grupos
+    .map((g) => ({ origem: g.origem, total: g._count._all }))
+    .sort((a, b) => b.total - a.total);
+}
+
 export interface PontoSerie {
   rotulo: string;
   cadastros: number;

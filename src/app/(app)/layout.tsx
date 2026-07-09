@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getConfig, getProspectsEmAlerta } from "@/lib/queries";
-import { Sidebar } from "@/components/layout/sidebar";
-import { Topbar } from "@/components/layout/topbar";
+import { AppShell } from "@/components/layout/app-shell";
+import { ToastProvider } from "@/components/ui/toast";
 
 export default async function AppLayout({
   children,
@@ -18,16 +18,14 @@ export default async function AppLayout({
   const alertas = await getProspectsEmAlerta(config.diasAlerta);
 
   return (
-    <div className="flex h-screen">
-      <Sidebar
+    <ToastProvider>
+      <AppShell
         usuario={{ nome: sessao.user.name ?? "", papel: sessao.user.papel }}
-        alertasCount={alertas.length}
-      />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <Topbar alertas={alertas} />
-        <main className="flex-1 overflow-y-auto px-8 py-7">{children}</main>
-      </div>
+        alertas={alertas}
+      >
+        {children}
+      </AppShell>
       {modal}
-    </div>
+    </ToastProvider>
   );
 }

@@ -19,6 +19,12 @@ export async function enviarAnexo(_: unknown, formData: FormData): Promise<Actio
     return { ok: false, error: "Selecione um arquivo." };
   }
 
+  const existe = await prisma.prospect.findUnique({
+    where: { id: prospectId },
+    select: { id: true },
+  });
+  if (!existe) return { ok: false, error: "Prospect não encontrado. Ele pode ter sido removido." };
+
   try {
     const salvo = await salvarAnexo(prospectId, arquivo);
     await prisma.anexo.create({

@@ -4,17 +4,18 @@ import { useActionState } from "react";
 import { Mail } from "lucide-react";
 import { atualizarPreferenciaEmail } from "@/lib/actions/conta";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 
 export function ContaForm({ receberAlertaEmail, email }: { receberAlertaEmail: boolean; email: string }) {
   const [state, formAction, pending] = useActionState(atualizarPreferenciaEmail, undefined);
 
   return (
-    <div className="card h-full px-6 py-5">
+    <div className="card flex h-full flex-col px-6 py-5">
       <div className="mb-1 flex items-center gap-2.5">
         <span className="flex h-8 w-8 flex-none items-center justify-center rounded-xl bg-prospeccao-bg text-prospeccao-fg">
           <Mail size={15} strokeWidth={1.9} />
         </span>
-        <h3 className="font-display text-[16px] font-bold tracking-wide text-navy">
+        <h3 className="text-[15px] font-semibold tracking-tight text-ink">
           Notificações por e-mail
         </h3>
       </div>
@@ -22,16 +23,12 @@ export function ContaForm({ receberAlertaEmail, email }: { receberAlertaEmail: b
         Quando ativado, você recebe um resumo diário em <b>{email}</b> com os prospects que
         entraram em alerta.
       </div>
-      <form action={formAction} className="mt-4 flex items-center gap-3">
-        <label className="flex items-center gap-2.5 text-[13px] text-text-secondary">
-          <input
-            type="checkbox"
-            name="receberAlertaEmail"
-            defaultChecked={receberAlertaEmail}
-            className="h-4 w-4 accent-gold"
-          />
-          Receber e-mails de alerta
-        </label>
+      <form action={formAction} className="mt-auto flex items-center gap-3 pt-4">
+        <Switch
+          name="receberAlertaEmail"
+          defaultChecked={receberAlertaEmail}
+          label="Receber e-mails de alerta"
+        />
         <Button type="submit" variant="primary" disabled={pending} className="ml-auto">
           {pending ? "Salvando…" : "Salvar"}
         </Button>

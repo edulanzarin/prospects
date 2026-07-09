@@ -19,17 +19,17 @@ interface RecentesPanelProps {
 
 export function RecentesPanel({ diasAlerta, prospects }: RecentesPanelProps) {
   return (
-    <div className="card overflow-hidden">
+    <div className="card h-full overflow-hidden">
       <div className="flex items-center gap-2.5 px-6 py-4">
         <span className="flex h-8 w-8 flex-none items-center justify-center rounded-xl bg-callout-bg text-callout-fg">
           <Clock size={15} strokeWidth={1.9} />
         </span>
-        <h3 className="font-display text-[16px] font-bold tracking-wide text-navy">
+        <h3 className="text-[15px] font-semibold tracking-tight text-ink">
           Últimos cadastros
         </h3>
         <Link
           href="/prospects/novo"
-          className="ml-auto flex flex-none items-center gap-1 text-xs font-semibold text-link hover:text-gold"
+          className="ml-auto flex flex-none items-center gap-1 text-xs font-semibold text-primary hover:text-primary-hover"
         >
           <Plus size={13} strokeWidth={2.2} />
           Novo
@@ -44,10 +44,10 @@ export function RecentesPanel({ diasAlerta, prospects }: RecentesPanelProps) {
           <Link
             key={p.id}
             href={`/prospects/${p.id}`}
-            className="block border-t border-divider px-6 py-3.5 transition-colors hover:bg-[#FAFBFC]"
+            className="block border-t border-divider px-6 py-3.5 transition-colors hover:bg-hover-row"
           >
             <div className="flex items-center gap-2">
-              <div className="min-w-0 flex-1 truncate text-[13px] font-bold text-text">
+              <div className="min-w-0 flex-1 truncate text-[13px] font-semibold text-text">
                 {p.empresa}
               </div>
               <StatusBadge status={statusVisual(p, diasAlerta)} />

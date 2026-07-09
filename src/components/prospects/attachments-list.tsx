@@ -46,10 +46,10 @@ export function AttachmentsList({ prospectId, anexos }: { prospectId: string; an
         <span className="flex h-8 w-8 flex-none items-center justify-center rounded-xl bg-cliente-bg text-cliente-fg">
           <FolderOpen size={15} strokeWidth={1.9} />
         </span>
-        <h3 className="font-display text-[16px] font-bold tracking-wide text-navy">
+        <h3 className="text-[15px] font-semibold tracking-tight text-ink">
           Documentos anexados
         </h3>
-        <label className="ml-auto flex cursor-pointer items-center gap-1 text-xs font-semibold text-link hover:text-gold">
+        <label className="ml-auto flex cursor-pointer items-center gap-1 text-xs font-semibold text-primary hover:text-primary-hover">
           <input
             ref={inputRef}
             type="file"
@@ -75,9 +75,9 @@ export function AttachmentsList({ prospectId, anexos }: { prospectId: string; an
         {anexos.map((anexo) => (
           <div
             key={anexo.id}
-            className="flex items-center gap-2.5 rounded-lg border border-divider bg-[#FAFBFC] px-3.5 py-2.5"
+            className="flex items-center gap-2.5 rounded-lg border border-divider bg-hover-row px-3.5 py-2.5"
           >
-            <Paperclip size={16} strokeWidth={1.6} className="flex-none text-link" />
+            <Paperclip size={16} strokeWidth={1.6} className="flex-none text-primary" />
             <div className="min-w-0 flex-1">
               <div className="truncate text-[12.5px] font-semibold text-text">{anexo.nomeOriginal}</div>
               <div className="text-[10.5px] text-text-faint">
@@ -86,7 +86,7 @@ export function AttachmentsList({ prospectId, anexos }: { prospectId: string; an
             </div>
             <a
               href={`/api/anexos/${anexo.id}`}
-              className="flex flex-none items-center gap-1 text-[11.5px] font-semibold text-link hover:text-gold"
+              className="flex flex-none items-center gap-1 text-[11.5px] font-semibold text-primary hover:text-primary-hover"
             >
               <Download size={13} strokeWidth={2} />
               Baixar

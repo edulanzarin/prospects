@@ -1,60 +1,61 @@
 "use client";
 
-import { useActionState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useTransition } from "react";
+import { motion } from "framer-motion";
 import { Check, X, RotateCcw } from "lucide-react";
 import { atualizarStatusProspect } from "@/lib/actions/prospects";
 import { buttonClasses, type ButtonVariant } from "@/components/ui/button";
+import { useToast } from "@/components/ui/toast";
+
+type Acao = "VIROU_CLIENTE" | "NAO_FECHOU" | "REABRIR";
+
+const MENSAGEM_SUCESSO: Record<Acao, string> = {
+  VIROU_CLIENTE: "Baixa registrada: o prospect virou cliente. 🎉",
+  NAO_FECHOU: "Baixa registrada: o prospect não fechou.",
+  REABRIR: "Prospecção reaberta.",
+};
 
 export function StatusActions({ prospectId, ativo }: { prospectId: string; ativo: boolean }) {
-  const [state, formAction, pending] = useActionState(atualizarStatusProspect, undefined);
+  const toast = useToast();
+  const [pending, startTransition] = useTransition();
 
-  return (
+  function executar(acao: Acao) {
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.set("prospectId", prospectId);
+      formData.set("acao", acao);
+      const resultado = await atualizarStatusProspect(undefined, formData);
+      if (resultado.ok) toast(MENSAGEM_SUCESSO[acao]);
+      else toast(resultado.error, "erro");
+    });
+  }
+
+  return ativo ? (
     <>
-      {ativo ? (
-        <>
-          <BotaoAcao formAction={formAction} prospectId={prospectId} acao="VIROU_CLIENTE" pending={pending} variante="sucesso">
-            <Check size={14} strokeWidth={2.2} />
-            Virou cliente
-          </BotaoAcao>
-          <BotaoAcao formAction={formAction} prospectId={prospectId} acao="NAO_FECHOU" pending={pending} variante="perigo">
-            <X size={14} strokeWidth={2.2} />
-            Não fechou
-          </BotaoAcao>
-        </>
-      ) : (
-        <BotaoAcao formAction={formAction} prospectId={prospectId} acao="REABRIR" pending={pending} variante="neutro">
-          <RotateCcw size={14} strokeWidth={2} />
-          Reabrir prospecção
-        </BotaoAcao>
-      )}
-      <AnimatePresence>
-        {state && !state.ok && (
-          <motion.span
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="w-full text-xs text-alerta-fg"
-          >
-            {state.error}
-          </motion.span>
-        )}
-      </AnimatePresence>
+      <BotaoAcao onClick={() => executar("VIROU_CLIENTE")} pending={pending} variante="sucesso">
+        <Check size={14} strokeWidth={2.2} />
+        Virou cliente
+      </BotaoAcao>
+      <BotaoAcao onClick={() => executar("NAO_FECHOU")} pending={pending} variante="perigo">
+        <X size={14} strokeWidth={2.2} />
+        Não fechou
+      </BotaoAcao>
     </>
+  ) : (
+    <BotaoAcao onClick={() => executar("REABRIR")} pending={pending} variante="neutro">
+      <RotateCcw size={14} strokeWidth={2} />
+      Reabrir prospecção
+    </BotaoAcao>
   );
 }
 
 function BotaoAcao({
-  formAction,
-  prospectId,
-  acao,
+  onClick,
   pending,
   variante,
   children,
 }: {
-  formAction: (formData: FormData) => void;
-  prospectId: string;
-  acao: "VIROU_CLIENTE" | "NAO_FECHOU" | "REABRIR";
+  onClick: () => void;
   pending: boolean;
   variante: "sucesso" | "perigo" | "neutro";
   children: React.ReactNode;
@@ -66,17 +67,14 @@ function BotaoAcao({
   };
 
   return (
-    <form action={formAction} className="flex-1">
-      <input type="hidden" name="prospectId" value={prospectId} />
-      <input type="hidden" name="acao" value={acao} />
-      <motion.button
-        type="submit"
-        disabled={pending}
-        whileTap={{ scale: 0.96 }}
-        className={buttonClasses(variantMap[variante], "md", "w-full")}
-      >
-        {children}
-      </motion.button>
-    </form>
+    <motion.button
+      type="button"
+      onClick={onClick}
+      disabled={pending}
+      whileTap={{ scale: 0.96 }}
+      className={buttonClasses(variantMap[variante], "md", "flex-1")}
+    >
+      {children}
+    </motion.button>
   );
 }

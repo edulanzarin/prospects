@@ -10,6 +10,7 @@ import {
   updateProspectSchema,
 } from "@/lib/validation/prospect.schema";
 import { ORIGEM_LABELS, SERVICO_LABELS } from "@/lib/labels";
+import { salvarAnexo, TIPOS_PERMITIDOS, TAMANHO_MAXIMO_BYTES } from "@/lib/upload";
 import type { Origem, Servico } from "@/generated/prisma/enums";
 
 export type ActionResult =
@@ -40,6 +41,21 @@ export async function criarProspect(_: unknown, formData: FormData): Promise<Act
     };
   }
 
+  // Valida os anexos antes de criar o prospect: se um arquivo for recusado
+  // depois, o prospect já estaria meio-criado no banco.
+  const anexos = formData.getAll("anexos").filter((f): f is File => f instanceof File && f.size > 0);
+  for (const arquivo of anexos) {
+    if (!TIPOS_PERMITIDOS.includes(arquivo.type)) {
+      return {
+        ok: false,
+        error: `"${arquivo.name}": tipo de arquivo não permitido. Envie PDF, JPG ou PNG.`,
+      };
+    }
+    if (arquivo.size > TAMANHO_MAXIMO_BYTES) {
+      return { ok: false, error: `"${arquivo.name}": arquivo maior que 15MB.` };
+    }
+  }
+
   const prospect = await prisma.prospect.create({
     data: {
       ...parsed.data,
@@ -55,22 +71,18 @@ export async function criarProspect(_: unknown, formData: FormData): Promise<Act
     },
   });
 
-  const anexos = formData.getAll("anexos").filter((f): f is File => f instanceof File && f.size > 0);
-  if (anexos.length > 0) {
-    const { salvarAnexo } = await import("@/lib/upload");
-    for (const arquivo of anexos) {
-      const salvo = await salvarAnexo(prospect.id, arquivo);
-      await prisma.anexo.create({
-        data: {
-          prospectId: prospect.id,
-          nomeOriginal: arquivo.name,
-          caminho: salvo.caminho,
-          mimeType: salvo.mimeType,
-          tamanhoBytes: salvo.tamanhoBytes,
-          uploaderId: sessao.user.id,
-        },
-      });
-    }
+  for (const arquivo of anexos) {
+    const salvo = await salvarAnexo(prospect.id, arquivo);
+    await prisma.anexo.create({
+      data: {
+        prospectId: prospect.id,
+        nomeOriginal: arquivo.name,
+        caminho: salvo.caminho,
+        mimeType: salvo.mimeType,
+        tamanhoBytes: salvo.tamanhoBytes,
+        uploaderId: sessao.user.id,
+      },
+    });
   }
 
   revalidatePath("/prospects");
@@ -89,6 +101,12 @@ export async function adicionarInteracao(_: unknown, formData: FormData): Promis
   if (!parsed.success) {
     return { ok: false, error: "Descreva o que aconteceu no contato." };
   }
+
+  const existe = await prisma.prospect.findUnique({
+    where: { id: parsed.data.prospectId },
+    select: { id: true },
+  });
+  if (!existe) return { ok: false, error: "Prospect não encontrado. Ele pode ter sido removido." };
 
   await prisma.interacao.create({
     data: {
@@ -142,7 +160,8 @@ export async function atualizarProspect(_: unknown, formData: FormData): Promise
   }
 
   const { prospectId, diasAlertaCustom, ...dados } = parsed.data;
-  const atual = await prisma.prospect.findUniqueOrThrow({ where: { id: prospectId } });
+  const atual = await prisma.prospect.findUnique({ where: { id: prospectId } });
+  if (!atual) return { ok: false, error: "Prospect não encontrado. Ele pode ter sido removido." };
 
   const mudancas: string[] = [];
   for (const campo of CAMPOS_EDITAVEIS) {
@@ -204,10 +223,13 @@ export async function atualizarStatusProspect(
     REABRIR: "Prospecção reaberta.",
   };
 
-  await prisma.prospect.update({
+  const { count } = await prisma.prospect.updateMany({
     where: { id: prospectId },
     data: dadosPorAcao[acao],
   });
+  if (count === 0) {
+    return { ok: false, error: "Prospect não encontrado. Ele pode ter sido removido." };
+  }
   await prisma.interacao.create({
     data: { prospectId, texto: textoPorAcao[acao], autorId: sessao.user.id },
   });

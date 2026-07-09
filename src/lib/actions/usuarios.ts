@@ -60,10 +60,17 @@ export async function alternarUsuarioAtivo(_: unknown, formData: FormData): Prom
   });
   if (!parsed.success) return { ok: false, error: "Requisição inválida." };
 
-  await prisma.usuario.update({
+  // Desativar a si mesmo derrubaria a própria sessão na hora (callback jwt) e
+  // poderia deixar o sistema sem nenhum administrador ativo.
+  if (!parsed.data.ativo && parsed.data.usuarioId === sessao.user.id) {
+    return { ok: false, error: "Você não pode desativar a própria conta." };
+  }
+
+  const { count } = await prisma.usuario.updateMany({
     where: { id: parsed.data.usuarioId },
     data: { ativo: parsed.data.ativo },
   });
+  if (count === 0) return { ok: false, error: "Usuário não encontrado." };
 
   revalidatePath("/configuracoes");
   return { ok: true };

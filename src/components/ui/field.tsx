@@ -13,7 +13,7 @@ export function Field({
 }) {
   return (
     <label
-      className={`flex flex-col gap-1.5 text-[12.5px] font-semibold text-text-secondary ${className ?? ""}`.trim()}
+      className={`flex flex-col gap-1 text-xs font-medium text-text-secondary ${className ?? ""}`.trim()}
     >
       <span className="flex items-center gap-1.5">
         {icon && <span className="text-text-faint">{icon}</span>}

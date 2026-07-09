@@ -17,10 +17,10 @@ export function TrocarSenhaForm() {
   return (
     <div className="card h-full px-6 py-5">
       <div className="mb-1 flex items-center gap-2.5">
-        <span className="flex h-8 w-8 flex-none items-center justify-center rounded-xl bg-navy/[0.08] text-navy">
+        <span className="flex h-8 w-8 flex-none items-center justify-center rounded-xl bg-primary-soft text-primary">
           <KeyRound size={15} strokeWidth={1.9} />
         </span>
-        <h3 className="font-display text-[16px] font-bold tracking-wide text-navy">
+        <h3 className="text-[15px] font-semibold tracking-tight text-ink">
           Alterar senha
         </h3>
       </div>

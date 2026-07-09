@@ -1,72 +1,199 @@
 @import "tailwindcss";
 
+/* Paleta e superfícies no padrão do Flow (estilo macOS):
+   fundo #f5f5f7, cartões brancos com sombra suave, accent #0071e3,
+   fonte do sistema (SF Pro). Os nomes dos tokens são os do prospects —
+   só os valores seguem o Flow. */
 @theme {
-  --font-sans: var(--font-inter), system-ui, sans-serif;
-  --font-display: var(--font-inter), system-ui, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-sans);
 
-  --color-navy: #041e41;
-  --color-navy-hover: #0a2b57;
-  --color-gold: #c9a13b;
-  --color-gold-hover: #d9b34e;
-  --color-link: #8a6d1e;
+  /* Cor primária — accent azul do Flow. */
+  --color-primary: #0071e3;
+  --color-primary-hover: #0077ed;
+  --color-primary-soft: rgba(0, 113, 227, 0.1);
+  --color-primary-soft-border: rgba(0, 113, 227, 0.22);
 
-  --color-page: #f3f4f6;
-  --color-card-border: #e4e7eb;
-  --color-divider: #eef0f3;
+  /* Tinta escura — títulos e botões escuros. */
+  --color-ink: #1d1d1f;
+  --color-ink-hover: #3a3a3c;
+  --color-ink-contrast: #ffffff;
 
-  --color-text: #1a2433;
-  --color-text-secondary: #344054;
-  --color-text-muted: #667085;
-  --color-text-faint: #98a2b3;
+  --color-card: #ffffff;
+  --color-card-translucent: rgba(255, 255, 255, 0.72);
+  --color-sidebar: rgba(246, 246, 248, 0.85);
 
-  --color-input-border: #d5dae1;
+  --color-page: #f5f5f7;
+  --color-card-border: rgba(0, 0, 0, 0.08);
+  --color-divider: rgba(0, 0, 0, 0.08);
+  --color-hover-row: rgba(0, 0, 0, 0.03);
 
-  --color-alerta-bg: #fdecea;
-  --color-alerta-fg: #c0392b;
-  --color-alerta-border: #f0c4be;
+  --color-text: #1d1d1f;
+  --color-text-secondary: #515154;
+  --color-text-muted: #86868b;
+  --color-text-faint: #a1a1a6;
 
-  --color-cliente-bg: #e6f4ec;
-  --color-cliente-fg: #1e7e4c;
-  --color-cliente-border: #bbdecb;
+  --color-input-border: rgba(0, 0, 0, 0.14);
 
-  --color-prospeccao-bg: #eaf1fa;
-  --color-prospeccao-fg: #2c5da8;
+  /* Status — reservados para estado, nunca reutilizados como série de gráfico. */
+  --color-alerta-bg: rgba(255, 69, 58, 0.12);
+  --color-alerta-fg: #d70015;
+  --color-alerta-border: rgba(255, 69, 58, 0.25);
 
-  --color-perdido-bg: #edeff3;
-  --color-perdido-fg: #667085;
+  --color-cliente-bg: rgba(52, 199, 89, 0.14);
+  --color-cliente-fg: #1f8a3b;
+  --color-cliente-border: rgba(52, 199, 89, 0.3);
 
-  --color-callout-bg: #fdf3df;
-  --color-callout-border: #ead9a8;
-  --color-callout-fg: #8a6d1e;
+  --color-prospeccao-bg: rgba(0, 113, 227, 0.1);
+  --color-prospeccao-fg: #0071e3;
 
-  --color-dropzone-border: #c8cfd9;
-  --color-dropzone-bg-hover: #fdfbf4;
+  --color-perdido-bg: rgba(0, 0, 0, 0.06);
+  --color-perdido-fg: #86868b;
+
+  --color-callout-bg: rgba(255, 159, 10, 0.16);
+  --color-callout-border: rgba(255, 159, 10, 0.35);
+  --color-callout-fg: #b25000;
+
+  --color-dropzone-border: rgba(0, 0, 0, 0.14);
+  --color-dropzone-bg-hover: rgba(0, 113, 227, 0.06);
+
+  --scrollbar-thumb: #c7c7cc;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.05);
+  --shadow-float: 0 8px 40px rgba(0, 0, 0, 0.16);
+}
+
+/* Modo noturno — mesmas variáveis, valores do tema escuro do Flow. */
+:root.dark {
+  --color-primary: #2997ff;
+  --color-primary-hover: #4ca5ff;
+  --color-primary-soft: rgba(41, 151, 255, 0.16);
+  --color-primary-soft-border: rgba(41, 151, 255, 0.35);
+
+  --color-ink: #f5f5f7;
+  --color-ink-hover: #ffffff;
+  --color-ink-contrast: #1d1d1f;
+
+  --color-card: #1e1e20;
+  --color-card-translucent: rgba(30, 30, 32, 0.72);
+  --color-sidebar: rgba(22, 22, 23, 0.85);
+
+  --color-page: #161617;
+  --color-card-border: rgba(255, 255, 255, 0.1);
+  --color-divider: rgba(255, 255, 255, 0.1);
+  --color-hover-row: rgba(255, 255, 255, 0.04);
+
+  --color-text: #f5f5f7;
+  --color-text-secondary: #b7b7bc;
+  --color-text-muted: #8b8b90;
+  --color-text-faint: #6e6e73;
+
+  --color-input-border: rgba(255, 255, 255, 0.18);
+
+  --color-alerta-bg: rgba(255, 69, 58, 0.18);
+  --color-alerta-fg: #ff6961;
+  --color-alerta-border: rgba(255, 69, 58, 0.35);
+
+  --color-cliente-bg: rgba(52, 199, 89, 0.18);
+  --color-cliente-fg: #4cd964;
+  --color-cliente-border: rgba(52, 199, 89, 0.35);
+
+  --color-prospeccao-bg: rgba(41, 151, 255, 0.16);
+  --color-prospeccao-fg: #2997ff;
+
+  --color-perdido-bg: rgba(255, 255, 255, 0.08);
+  --color-perdido-fg: #8b8b90;
+
+  --color-callout-bg: rgba(255, 159, 10, 0.18);
+  --color-callout-border: rgba(255, 159, 10, 0.35);
+  --color-callout-fg: #ffb340;
+
+  --color-dropzone-border: rgba(255, 255, 255, 0.18);
+  --color-dropzone-bg-hover: rgba(41, 151, 255, 0.1);
+
+  --scrollbar-thumb: #48484a;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-float: 0 8px 40px rgba(0, 0, 0, 0.55);
+  color-scheme: dark;
 }
 
 body {
   background-color: var(--color-page);
-  background-image: radial-gradient(circle, rgba(4, 30, 65, 0.07) 1px, transparent 1px);
-  background-size: 22px 22px;
   color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: var(--color-primary-soft);
+  color: var(--color-ink);
+}
+
+/* Scrollbar discreta, coerente com o visual do sistema. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background-color: var(--scrollbar-thumb);
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Anel de foco visível só para navegação por teclado. */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 @layer components {
-  /* Superfície padrão: sombra suave + borda quase invisível, no lugar de
-     bordas pesadas — visual mais leve e moderno, mesmo com telas densas. */
+  /* Superfície padrão: cartão estilo mac — canto 1rem, borda hairline, sombra dupla suave. */
   .card {
-    @apply rounded-[20px] border border-black/[0.06] bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04),0_1px_3px_rgba(16,24,40,0.06)];
+    @apply rounded-2xl border border-card-border bg-card;
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Cartão clicável: levanta de leve no hover. */
+  .card-hover {
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.09);
   }
 
   .campo-input {
-    @apply w-full rounded-xl border border-input-border bg-white px-3.5 py-2.5 text-[13.5px] text-text outline-none transition-shadow placeholder:text-text-faint;
+    @apply w-full rounded-[10px] border border-input-border bg-card px-3 py-2 text-[13.5px] text-text outline-none placeholder:text-text-faint;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
   }
   .campo-input:focus {
-    @apply border-gold ring-[3px] ring-gold/15;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3.5px var(--color-primary-soft);
   }
+}
 
-  /* Textura sutil para telas de fundo sólido escuro (ex: login) — profundidade sem poluir. */
-  .bg-texture-navy {
-    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
-    background-size: 22px 22px;
+@media (prefers-reduced-motion: reduce) {
+  .card-hover,
+  .card-hover:hover {
+    transform: none;
+    transition: none;
   }
 }

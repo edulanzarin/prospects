@@ -1,18 +1,20 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { Search, Filter, Plus, CalendarRange, X } from "lucide-react";
+import { Search, Filter, CalendarRange, X } from "lucide-react";
 import { ORIGEM_OPTIONS } from "@/lib/labels";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { buttonClasses } from "@/components/ui/button";
 
 const CAMPOS_FILTRO = ["busca", "status", "origem", "cadastroDe", "cadastroAte"];
 
 export function ProspectFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => clearTimeout(debounceRef.current ?? undefined), []);
 
   function atualizar(chave: string, valor: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -22,6 +24,12 @@ export function ProspectFilters() {
     router.push(`/prospects?${params.toString()}`);
   }
 
+  /* Busca aplicada automaticamente enquanto digita, sem precisar de Enter. */
+  function buscarComDebounce(valor: string) {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => atualizar("busca", valor.trim()), 400);
+  }
+
   const temFiltroAtivo = CAMPOS_FILTRO.some((campo) => !!searchParams.get(campo));
 
   return (
@@ -29,14 +37,16 @@ export function ProspectFilters() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          if (debounceRef.current) clearTimeout(debounceRef.current);
           const valor = (e.currentTarget.elements.namedItem("busca") as HTMLInputElement).value;
-          atualizar("busca", valor);
+          atualizar("busca", valor.trim());
         }}
-        className="max-w-[420px] flex-1"
+        className="min-w-[220px] max-w-[420px] flex-1"
       >
         <Input
           name="busca"
           defaultValue={searchParams.get("busca") ?? ""}
+          onChange={(e) => buscarComDebounce(e.target.value)}
           placeholder="Buscar por empresa, contato ou CNPJ…"
           icon={<Search size={15} strokeWidth={2} />}
         />
@@ -47,31 +57,16 @@ export function ProspectFilters() {
       </div>
 
       <Select
-        value={searchParams.get("status") ?? "TODOS"}
-        onChange={(e) => atualizar("status", e.target.value)}
-        className="w-auto"
-      >
-        <option value="TODOS">Status: todos</option>
-        <option value="ALERTA">Em alerta</option>
-        <option value="ATIVO">Em prospecção</option>
-        <option value="CLIENTE">Viraram clientes</option>
-        <option value="PERDIDO">Não fecharam</option>
-      </Select>
-
-      <Select
         value={searchParams.get("origem") ?? "TODAS"}
-        onChange={(e) => atualizar("origem", e.target.value)}
-        className="w-auto"
-      >
-        <option value="TODAS">Origem: todas</option>
-        {ORIGEM_OPTIONS.map(([valor, label]) => (
-          <option key={valor} value={valor}>
-            {label}
-          </option>
-        ))}
-      </Select>
+        onValueChange={(valor) => atualizar("origem", valor)}
+        options={[
+          { value: "TODAS", label: "Origem: todas" },
+          ...ORIGEM_OPTIONS.map(([valor, label]) => ({ value: valor, label })),
+        ]}
+        className="w-48"
+      />
 
-      <div className="flex items-center gap-1.5 rounded-xl border border-input-border bg-white px-3 py-1">
+      <div className="flex items-center gap-1.5 rounded-xl border border-input-border bg-card px-3 py-1">
         <CalendarRange size={14} strokeWidth={1.9} className="flex-none text-text-faint" />
         <input
           type="date"
@@ -100,11 +95,6 @@ export function ProspectFilters() {
           Limpar
         </button>
       )}
-
-      <Link href="/prospects/novo" className={buttonClasses("primary", "md", "ml-auto")}>
-        <Plus size={15} strokeWidth={2.4} />
-        Novo prospect
-      </Link>
     </div>
   );
 }

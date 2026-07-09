@@ -54,13 +54,13 @@ function formatarDataCurta(data: Date | null): string {
 
 export function statusVisual(prospect: ProspectComAlerta, diasAlertaPadrao: number): StatusVisual {
   if (prospect.status === "CLIENTE") {
-    return { key: "cliente", label: "Virou cliente", bg: "#E6F4EC", fg: "#1E7E4C" };
+    return { key: "cliente", label: "Virou cliente", bg: "var(--color-cliente-bg)", fg: "var(--color-cliente-fg)" };
   }
   if (prospect.status === "PERDIDO") {
-    return { key: "perdido", label: "Não fechou", bg: "#EDEFF3", fg: "#667085" };
+    return { key: "perdido", label: "Não fechou", bg: "var(--color-perdido-bg)", fg: "var(--color-perdido-fg)" };
   }
   if (isAlerta(prospect, diasAlertaPadrao)) {
-    return { key: "alerta", label: "Em alerta", bg: "#FDECEA", fg: "#C0392B" };
+    return { key: "alerta", label: "Em alerta", bg: "var(--color-alerta-bg)", fg: "var(--color-alerta-fg)" };
   }
-  return { key: "prospeccao", label: "Em prospecção", bg: "#EAF1FA", fg: "#2C5DA8" };
+  return { key: "prospeccao", label: "Em prospecção", bg: "var(--color-prospeccao-bg)", fg: "var(--color-prospeccao-fg)" };
 }

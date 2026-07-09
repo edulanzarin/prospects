@@ -61,7 +61,7 @@ export function Timeline({ prospectId, itens }: { prospectId: string; itens: Ite
         <span className="flex h-8 w-8 flex-none items-center justify-center rounded-xl bg-prospeccao-bg text-prospeccao-fg">
           <History size={15} strokeWidth={1.9} />
         </span>
-        <h3 className="font-display text-[16px] font-bold tracking-wide text-navy">
+        <h3 className="text-[15px] font-semibold tracking-tight text-ink">
           Histórico de contatos
         </h3>
         <span className="ml-auto rounded-full bg-page px-2 py-0.5 text-[11px] font-semibold text-text-muted">
@@ -99,7 +99,7 @@ export function Timeline({ prospectId, itens }: { prospectId: string; itens: Ite
               )}
               <span
                 className={`relative z-10 flex h-[23px] w-[23px] flex-none items-center justify-center rounded-full ${
-                  i === 0 ? "bg-gold text-navy" : "bg-page text-text-faint"
+                  i === 0 ? "bg-primary text-white" : "bg-page text-text-faint"
                 }`}
               >
                 <Icone size={12.5} strokeWidth={2} />
@@ -121,7 +121,7 @@ export function Timeline({ prospectId, itens }: { prospectId: string; itens: Ite
           type="button"
           whileTap={{ scale: 0.98 }}
           onClick={() => setExpandido(true)}
-          className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-lg border border-divider py-2 text-xs font-semibold text-text-secondary transition-colors hover:border-gold hover:text-link"
+          className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-lg border border-divider py-2 text-xs font-semibold text-text-secondary transition-colors hover:border-primary hover:text-primary"
         >
           <ChevronDown size={14} strokeWidth={2} />
           Mostrar mais {restantes}
@@ -131,7 +131,7 @@ export function Timeline({ prospectId, itens }: { prospectId: string; itens: Ite
         <button
           type="button"
           onClick={() => setExpandido(false)}
-          className="mt-2 text-center text-xs font-semibold text-link hover:text-gold"
+          className="mt-2 text-center text-xs font-semibold text-primary hover:text-primary-hover"
         >
           Recolher
         </button>

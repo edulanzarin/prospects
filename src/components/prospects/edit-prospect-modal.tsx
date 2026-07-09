@@ -21,6 +21,7 @@ import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/toast";
 import type { Origem, Servico } from "@/generated/prisma/enums";
 
 interface ProspectEditavel {
@@ -43,6 +44,7 @@ export function EditProspectModal({
   prospect: ProspectEditavel;
   diasAlertaPadrao: number;
 }) {
+  const toast = useToast();
   const [aberto, setAberto] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -53,8 +55,10 @@ export function EditProspectModal({
     setErro(null);
     startTransition(async () => {
       const resultado = await atualizarProspect(undefined, formData);
-      if (resultado.ok) setAberto(false);
-      else setErro(resultado.error);
+      if (resultado.ok) {
+        setAberto(false);
+        toast("Alterações salvas no prospect.");
+      } else setErro(resultado.error);
     });
   }
 
@@ -102,22 +106,18 @@ export function EditProspectModal({
               <Input name="email" type="email" defaultValue={prospect.email ?? ""} />
             </Field>
             <Field label="Origem do contato" icon={<Tag size={14} strokeWidth={1.8} />}>
-              <Select name="origem" defaultValue={prospect.origem}>
-                {ORIGEM_OPTIONS.map(([valor, label]) => (
-                  <option key={valor} value={valor}>
-                    {label}
-                  </option>
-                ))}
-              </Select>
+              <Select
+                name="origem"
+                defaultValue={prospect.origem}
+                options={ORIGEM_OPTIONS.map(([valor, label]) => ({ value: valor, label }))}
+              />
             </Field>
             <Field label="Serviço de interesse" icon={<Briefcase size={14} strokeWidth={1.8} />}>
-              <Select name="servico" defaultValue={prospect.servico}>
-                {SERVICO_OPTIONS.map(([valor, label]) => (
-                  <option key={valor} value={valor}>
-                    {label}
-                  </option>
-                ))}
-              </Select>
+              <Select
+                name="servico"
+                defaultValue={prospect.servico}
+                options={SERVICO_OPTIONS.map(([valor, label]) => ({ value: valor, label }))}
+              />
             </Field>
             <Field label="Prazo de alerta (dias)" icon={<AlarmClock size={14} strokeWidth={1.8} />}>
               <Input

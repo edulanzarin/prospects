@@ -34,7 +34,7 @@ export function Dialog({ open, onClose, title, subtitle, icon, widthClass = "max
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
           <motion.div
-            className="absolute inset-0 bg-navy/45 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -42,20 +42,20 @@ export function Dialog({ open, onClose, title, subtitle, icon, widthClass = "max
             onClick={onClose}
           />
           <motion.div
-            className={`relative flex max-h-[88vh] w-full ${widthClass} flex-col overflow-hidden rounded-2xl bg-page shadow-2xl`}
+            className={`relative flex max-h-[88vh] w-full ${widthClass} flex-col overflow-hidden rounded-2xl border border-card-border bg-card shadow-[var(--shadow-float)]`}
             initial={{ opacity: 0, y: 16, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.97 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
           >
-            <div className="flex flex-none items-center gap-3 border-b border-divider bg-white px-6 py-5">
+            <div className="flex flex-none items-center gap-3 border-b border-divider px-6 py-4">
               {icon && (
-                <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-page text-navy">
+                <span className="flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-primary-soft text-primary">
                   {icon}
                 </span>
               )}
               <div className="min-w-0">
-                <h2 className="truncate font-display text-[17px] font-semibold tracking-wide text-navy">
+                <h2 className="truncate text-[16px] font-semibold tracking-tight text-ink">
                   {title}
                 </h2>
                 {subtitle && <p className="mt-0.5 text-[12.5px] text-text-muted">{subtitle}</p>}
@@ -64,12 +64,12 @@ export function Dialog({ open, onClose, title, subtitle, icon, widthClass = "max
                 type="button"
                 onClick={onClose}
                 aria-label="Fechar"
-                className="ml-auto flex h-8 w-8 flex-none items-center justify-center rounded-full text-text-muted transition-colors hover:bg-page hover:text-text"
+                className="ml-auto flex h-8 w-8 flex-none items-center justify-center rounded-md text-text-muted transition-colors hover:bg-primary-soft hover:text-text"
               >
                 <X size={18} strokeWidth={1.8} />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-6">{children}</div>
+            <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
           </motion.div>
         </div>
       )}

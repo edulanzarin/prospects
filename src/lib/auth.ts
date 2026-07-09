@@ -37,11 +37,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    jwt({ token, user }) {
+    async jwt({ token, user }) {
       if (user?.id) {
         token.id = user.id;
         token.papel = user.papel;
+        return token;
       }
+      // Sessão antiga: se o usuário sumiu do banco (removido/banco recriado) ou foi
+      // desativado, retornar null invalida o token e derruba a sessão de vez —
+      // senão o proxy vê o cookie como válido e devolve o usuário ao dashboard.
+      const atual = await prisma.usuario.findUnique({
+        where: { id: token.id },
+        select: { ativo: true, papel: true },
+      });
+      if (!atual?.ativo) return null;
+      token.papel = atual.papel;
       return token;
     },
     session({ session, token }) {
