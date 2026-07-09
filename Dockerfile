@@ -34,7 +34,9 @@ COPY --from=builder /app/tsconfig.json ./tsconfig.json
 # do Next), então o Prisma Client gerado precisa existir aqui também.
 COPY --from=builder /app/src/generated/prisma ./src/generated/prisma
 COPY docker/entrypoint.sh ./docker/entrypoint.sh
-RUN chmod +x ./docker/entrypoint.sh && chown -R nextjs:nodejs /app
+# sed remove CRLF caso o build parta de um checkout Windows — com \r no
+# shebang o exec falha com "no such file or directory".
+RUN sed -i 's/\r$//' ./docker/entrypoint.sh && chmod +x ./docker/entrypoint.sh && chown -R nextjs:nodejs /app
 
 # Continua como root: o entrypoint ajusta a permissão do volume de uploads e
 # então baixa privilégio para o usuário "nextjs" antes de rodar a aplicação.
