@@ -19,6 +19,7 @@ enum Origem {
   SITE
   VISITA_PRESENCIAL
   REDES_SOCIAIS
+  CENTRAL
   OUTRO
 }
 

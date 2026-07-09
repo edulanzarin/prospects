@@ -7,6 +7,7 @@ export const ORIGEM_LABELS: Record<Origem, string> = {
   SITE: "Site",
   VISITA_PRESENCIAL: "Visita presencial",
   REDES_SOCIAIS: "Redes sociais",
+  CENTRAL: "Central",
   OUTRO: "Outro",
 };
 
