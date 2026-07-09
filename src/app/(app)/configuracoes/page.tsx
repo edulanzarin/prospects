@@ -3,9 +3,11 @@ import { Users, ShieldCheck, UserCheck } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { PAPEL_LABELS } from "@/lib/labels";
+import { getConfig } from "@/lib/queries";
 import { ContaForm } from "@/components/account/conta-form";
 import { TrocarSenhaForm } from "@/components/account/trocar-senha-form";
 import { UsuariosPanel } from "@/components/config/usuarios-panel";
+import { SmtpPanel } from "@/components/config/smtp-panel";
 import { FadeIn } from "@/components/ui/fade-in";
 
 export const metadata = { title: "Configurações" };
@@ -25,10 +27,9 @@ export default async function ConfiguracoesPage() {
   const usuario = await prisma.usuario.findUnique({ where: { id: sessao.user.id } });
   // Sessão válida mas usuário sumiu do banco (removido, ou banco de dev recriado): força novo login.
   if (!usuario) redirect("/login");
-  const usuarios =
-    usuario.papel === "ADMINISTRADOR"
-      ? await prisma.usuario.findMany({ orderBy: { criadoEm: "asc" } })
-      : null;
+  const ehAdmin = usuario.papel === "ADMINISTRADOR";
+  const usuarios = ehAdmin ? await prisma.usuario.findMany({ orderBy: { criadoEm: "asc" } }) : null;
+  const config = ehAdmin ? await getConfig() : null;
 
   return (
     <div className="flex w-full max-w-[1680px] flex-col gap-5">
@@ -71,6 +72,19 @@ export default async function ConfiguracoesPage() {
       {usuarios && (
         <FadeIn delay={0.2}>
           <UsuariosPanel usuarios={usuarios} />
+        </FadeIn>
+      )}
+
+      {config && (
+        <FadeIn delay={0.25}>
+          <SmtpPanel
+            smtp={{
+              host: config.smtpHost ?? "",
+              port: config.smtpPort,
+              user: config.smtpUser ?? "",
+              temSenha: Boolean(config.smtpPass),
+            }}
+          />
         </FadeIn>
       )}
     </div>

@@ -166,10 +166,12 @@ export function Topbar({ alertas, onMenuClick }: TopbarProps) {
             )}
           </AnimatePresence>
         </div>
-        <Link href="/prospects/novo" className={buttonClasses("primary", "sm", "hidden sm:inline-flex")}>
+        {/* <a>: navegação soft para /prospects/novo é engolida pelo interceptador (.)prospects/[id] */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+        <a href="/prospects/novo" className={buttonClasses("primary", "sm", "hidden sm:inline-flex")}>
           <Plus size={14} strokeWidth={2.4} />
           Novo prospect
-        </Link>
+        </a>
       </div>
     </header>
   );

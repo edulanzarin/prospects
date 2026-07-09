@@ -4,7 +4,17 @@ import type { Origem } from "@/generated/prisma/enums";
 
 export async function getConfig() {
   const config = await prisma.config.findUnique({ where: { id: "config" } });
-  return config ?? { id: "config", diasAlerta: 15, destacarLinhas: true };
+  return (
+    config ?? {
+      id: "config",
+      diasAlerta: 15,
+      destacarLinhas: true,
+      smtpHost: null,
+      smtpPort: 587,
+      smtpUser: null,
+      smtpPass: null,
+    }
+  );
 }
 
 /** Prospects ativos que já cruzaram o limiar de alerta — usado no sino, sidebar e dashboard. */

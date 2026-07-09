@@ -60,10 +60,12 @@ export function ProspectTable({
             Limpar filtros
           </Link>
         ) : (
-          <Link href="/prospects/novo" className={buttonClasses("primary", "sm")}>
+          /* <a>: navegação soft para /prospects/novo é engolida pelo interceptador (.)prospects/[id] */
+          // eslint-disable-next-line @next/next/no-html-link-for-pages
+          <a href="/prospects/novo" className={buttonClasses("primary", "sm")}>
             <Plus size={13} strokeWidth={2.4} />
             Cadastrar prospect
-          </Link>
+          </a>
         )}
       </div>
     );

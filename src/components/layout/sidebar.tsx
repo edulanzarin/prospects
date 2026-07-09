@@ -20,10 +20,12 @@ const NAV_PRINCIPAL: {
   label: string;
   icon: typeof LayoutDashboard;
   badge?: boolean;
+  /* Navegação completa — ver comentário no NavLink. */
+  hard?: boolean;
 }[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/prospects", label: "Prospects", icon: Users, badge: true },
-  { href: "/prospects/novo", label: "Cadastrar prospect", icon: UserPlus },
+  { href: "/prospects/novo", label: "Cadastrar prospect", icon: UserPlus, hard: true },
 ];
 
 export function Sidebar({ usuario, alertasCount, mobile }: SidebarProps) {
@@ -59,7 +61,13 @@ export function Sidebar({ usuario, alertasCount, mobile }: SidebarProps) {
         <SecaoLabel>Principal</SecaoLabel>
         <div className="flex flex-col gap-0.5">
           {NAV_PRINCIPAL.map((item) => (
-            <NavLink key={item.href} href={item.href} ativo={isAtivo(item.href)} mobile={mobile}>
+            <NavLink
+              key={item.href}
+              href={item.href}
+              ativo={isAtivo(item.href)}
+              mobile={mobile}
+              hard={item.hard}
+            >
               <item.icon size={17} strokeWidth={1.8} />
               {item.label}
               {item.badge && alertasCount > 0 && (
@@ -122,20 +130,20 @@ function NavLink({
   href,
   ativo,
   mobile,
+  hard,
   children,
 }: {
   href: string;
   ativo: boolean;
   mobile?: boolean;
+  hard?: boolean;
   children: React.ReactNode;
 }) {
-  return (
-    <Link
-      href={href}
-      className={`relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-        ativo ? "text-white" : "text-text-secondary hover:bg-primary-soft hover:text-ink"
-      }`}
-    >
+  const className = `relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+    ativo ? "text-white" : "text-text-secondary hover:bg-primary-soft hover:text-ink"
+  }`;
+  const conteudo = (
+    <>
       {ativo && (
         <motion.span
           layoutId={mobile ? "nav-pill-ativo-mobile" : "nav-pill-ativo"}
@@ -144,6 +152,20 @@ function NavLink({
         />
       )}
       <span className="relative flex w-full items-center gap-2.5">{children}</span>
+    </>
+  );
+  // hard: navegação completa — em navegação soft o interceptador
+  // @modal/(.)prospects/[id] engole segmentos estáticos como "novo" e dá 404.
+  if (hard) {
+    return (
+      <a href={href} className={className}>
+        {conteudo}
+      </a>
+    );
+  }
+  return (
+    <Link href={href} className={className}>
+      {conteudo}
     </Link>
   );
 }

@@ -27,13 +27,15 @@ export function RecentesPanel({ diasAlerta, prospects }: RecentesPanelProps) {
         <h3 className="text-[15px] font-semibold tracking-tight text-ink">
           Últimos cadastros
         </h3>
-        <Link
+        {/* <a>: navegação soft para /prospects/novo é engolida pelo interceptador (.)prospects/[id] */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+        <a
           href="/prospects/novo"
           className="ml-auto flex flex-none items-center gap-1 text-xs font-semibold text-primary hover:text-primary-hover"
         >
           <Plus size={13} strokeWidth={2.2} />
           Novo
-        </Link>
+        </a>
       </div>
       {prospects.length === 0 ? (
         <div className="px-6 py-9 text-center text-[12.5px] text-text-faint">

@@ -126,4 +126,10 @@ model Config {
   id             String  @id @default("config")
   diasAlerta     Int     @default(15)
   destacarLinhas Boolean @default(true)
+  // SMTP para envio dos alertas (senha de app do Gmail etc.). Se smtpHost
+  // estiver vazio, o mailer cai para as variáveis de ambiente SMTP_*.
+  smtpHost       String?
+  smtpPort       Int     @default(587)
+  smtpUser       String?
+  smtpPass       String?
 }
